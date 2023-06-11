@@ -59,7 +59,6 @@ FROM gm_msft;
 -- highest closing price?
 -- something with some maths
 -- something HAVING something CONCAT something SUBSTRING something
--- GROUP BY aggregate something
 
 -- THEN ANSWER THESE WITH JOINS
 -- which company had the highest open/close price on set date
@@ -82,50 +81,22 @@ SELECT
     max(volume) as max_volume,
     name
 FROM (
-    SELECT
-        name,
-        date,
-        open,
-        high,
-        low,
-        close,
-        volume
+    SELECT name, date, open, high, low, close, volume
     FROM gm_aapl
     UNION ALL
-    SELECT
-        name,
-        date,
-        open,
-        high,
-        low,
-        close,
-        volume
+    SELECT name, date, open, high, low, close, volume
     FROM gm_amzn
     UNION ALL
-    SELECT
-        name,
-        date,
-        open,
-        high,
-        low,
-        close,
-        volume
+    SELECT name, date, open, high, low, close, volume
     FROM gm_goog
     UNION ALL
-    SELECT
-        name,
-        date,
-        open,
-        high,
-        low,
-        close,
-        volume
+    SELECT name, date, open, high, low, close, volume
     FROM gm_msft
-     ) as date_tables
+     ) as outlier_tables
 GROUP BY
     name;
 
--- insightful insights
+-- insightful insights are that yes there do be some outliers there do
 
 -- apple
 /* insert amazing(ly average) code here */
@@ -161,6 +132,20 @@ GROUP BY
     date
 LIMIT 1;
 
+-- display average closing price where the price is over 150 alongside the date
+
+SELECT
+    avg(close) as average_close_price,
+    date
+FROM
+    gm_aapl
+GROUP BY
+    date
+HAVING
+    avg(close) > 150
+ORDER BY
+    average_close_price DESC;
+
 -- amazon
 /* insert amazing code here */
 
@@ -175,4 +160,44 @@ LIMIT 1;
 
 -- joins and comparisons
 /* insert amazing code here */
+
+SELECT
+    date,
+    max(high - low) as stock_volatility
+FROM (
+    SELECT date, high, low
+    FROM gm_aapl
+    UNION ALL
+    SELECT date, high, low
+    FROM gm_amzn
+    UNION ALL
+    SELECT date, high, low
+    FROM gm_goog
+    UNION ALL
+    SELECT date, high, low
+    FROM gm_msft
+        ) AS stock_data
+GROUP BY
+    date
+ORDER BY
+    stock_volatility DESC
+LIMIT 5;
+
+SELECT date, name, volume
+FROM (
+    SELECT date, name, volume,
+           ROW_NUMBER() OVER (PARTITION BY date ORDER BY volume DESC) AS row_num
+    FROM (
+        SELECT date, volume, 'AAPL' AS name FROM gm_aapl
+        UNION ALL
+        SELECT date, volume, 'AMZN' AS name FROM gm_amzn
+        UNION ALL
+        SELECT date, volume, 'GOOG' AS name FROM gm_goog
+        UNION ALL
+        SELECT date, volume, 'MSFT' AS name FROM gm_msft
+    ) AS stock_data
+) AS ranked_data
+WHERE row_num = 1;
+
+
 
