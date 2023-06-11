@@ -188,13 +188,13 @@ FROM (
     SELECT date, name, volume,
            ROW_NUMBER() OVER (PARTITION BY date ORDER BY volume DESC) AS row_num
     FROM (
-        SELECT date, volume, 'AAPL' AS name FROM gm_aapl
+        SELECT date, volume, name FROM gm_aapl
         UNION ALL
-        SELECT date, volume, 'AMZN' AS name FROM gm_amzn
+        SELECT date, volume, name FROM gm_amzn
         UNION ALL
-        SELECT date, volume, 'GOOG' AS name FROM gm_goog
+        SELECT date, volume, name FROM gm_goog
         UNION ALL
-        SELECT date, volume, 'MSFT' AS name FROM gm_msft
+        SELECT date, volume, name FROM gm_msft
     ) AS stock_data
 ) AS ranked_data
 WHERE row_num = 1;
