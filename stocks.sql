@@ -183,7 +183,9 @@ ORDER BY
     stock_volatility DESC
 LIMIT 5;
 
-SELECT date, name, volume
+
+-- what is this? i dont think this code does anything useful
+/* SELECT date, name, volume
 FROM (
     SELECT date, name, volume,
            ROW_NUMBER() OVER (PARTITION BY date ORDER BY volume DESC) AS row_num
